@@ -23,8 +23,8 @@ def plot(axdict : Dict[str,plt.Axes],
     prm = dict(edgecolor = 'black',
                s = 200,
                cmap = cmap,
-#               vmin = 0.0,
-#               vmax = 1.0
+               vmin = 0.0,
+               vmax = 1.0
                )
     
     axdict['pred'].scatter(x = crd[:,0],
