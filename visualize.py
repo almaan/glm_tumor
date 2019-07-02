@@ -23,8 +23,8 @@ def plot(axdict : Dict[str,plt.Axes],
     prm = dict(edgecolor = 'black',
                s = 200,
                cmap = cmap,
-               vmin = 0.0,
-               vmax = 1.0
+#               vmin = 0.0,
+#               vmax = 1.0
                )
     
     axdict['pred'].scatter(x = crd[:,0],
@@ -32,7 +32,7 @@ def plot(axdict : Dict[str,plt.Axes],
                            c = labels['pred'].reshape(-1,),
                            **prm)
     
-    if 'true' in axdict:
+    if 'true' in labels:
         axdict['true'].scatter(x = crd[:,0],
                                y = crd[:,1],
                                c = labels['true'].reshape(-1,),
@@ -119,6 +119,13 @@ if __name__ == "__main__" :
                      help = ''.join([]),
                      )
 
+    prs.add_argument('-f','--filter',
+                     default = 0.0,
+                     type = float,
+                     required = False,
+                     help = ''.join([]),
+                     )
+
 
     args = prs.parse_args()
     
@@ -144,6 +151,11 @@ if __name__ == "__main__" :
     intergenes = cnt.columns.intersection(beta.index)
     cnt = cnt.loc[:,intergenes]
     
+    if args.filter > 0:
+        keep_idx = cnt.values.sum(axis=1) > args.filter
+        cnt = cnt.iloc[keep_idx,:]
+    
+    
     labels = {}
     
     if args.meta_file:
@@ -158,7 +170,7 @@ if __name__ == "__main__" :
         true_labels = true_labels.astype(np.float).reshape(-1,1)
         labels.update({'true':true_labels})
         
-    if args.sigma.isnumeric():
+    if args.sigma.replace('.','').isalnum():
         sigma = float(args.sigma)
     elif os.path.exists(args.sigma):
          with open(args.sigma,'r+') as fopen:
@@ -166,7 +178,7 @@ if __name__ == "__main__" :
     else:
         print(f"sigma path does not exist. EXIT.")
         sys.exit(-1)
-    
+        
     crd = get_crd(cnt.index)
     intercept = np.float(beta.loc['bias',:].values)
     coef = beta.loc[intergenes,:].values

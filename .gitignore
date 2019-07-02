@@ -1,1 +1,3 @@
 old/
+./gitignore
+__pycache__/
